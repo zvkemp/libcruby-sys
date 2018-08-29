@@ -70,7 +70,7 @@ namespace :build do
     libcruby_sys_path = File.expand_path('lib')
     libcruby_sys_name = 'cruby_sys'
 
-    cp File.expand_path("#{libcruby_sys_name}.so", libcruby_sys_path), File.expand_path("#{libcruby_sys_name}.dll", libcruby_sys_path)
+    # cp File.expand_path("#{libcruby_sys_name}.so", libcruby_sys_path), File.expand_path("#{libcruby_sys_name}.dll", libcruby_sys_path)
 
     link_args = '-Wl,--enable-auto-image-base,--enable-auto-import'
 

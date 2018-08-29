@@ -5,6 +5,7 @@ extern {
     pub fn rb_ary_new() -> VALUE;
     pub fn rb_ary_new_capa(capacity: c_long) -> VALUE;
     pub fn rb_ary_push(array: VALUE, item: VALUE) -> VALUE;
+    pub fn rb_ary_entry(array: VALUE, idx: c_long) -> VALUE;
 
     pub fn rb_utf8_str_new(ptr: *const c_char, len: c_long) -> VALUE;
 
@@ -62,6 +63,23 @@ tests! {
         unsafe { rb_ary_push(arr2, "world!".to_ruby()) };
 
         assert.rb_eq(lazy_eval("['hello', 'world!']"), arr2);
+    }
+
+    #[test]
+    fn test_ary_entry(assert: &mut Assertions) {
+        let arr1 = unsafe { rb_ary_new_capa(3) };
+
+        unsafe { rb_ary_push(arr1, Qtrue) };
+        unsafe { rb_ary_push(arr1, Qfalse) };
+        unsafe { rb_ary_push(arr1, Qnil) };
+        unsafe { rb_ary_push(arr1, "hello".to_ruby()) };
+
+        assert.rb_eq(unsafe { Qtrue }, unsafe { rb_ary_entry(arr1, 0) });
+        assert.rb_eq(unsafe { Qfalse }, unsafe { rb_ary_entry(arr1, 1) });
+        assert.rb_nil(unsafe { rb_ary_entry(arr1, 2) });
+        assert.rb_eq("hello".to_ruby(), unsafe { rb_ary_entry(arr1, 3) });
+        assert.rb_nil(unsafe { rb_ary_entry(arr1, 4) });
+        assert.rb_eq("hello".to_ruby(), unsafe { rb_ary_entry(arr1, -1) });
     }
 
     #[test]

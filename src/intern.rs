@@ -6,6 +6,10 @@ extern {
     pub fn rb_ary_new_capa(capacity: c_long) -> VALUE;
     pub fn rb_ary_push(array: VALUE, item: VALUE) -> VALUE;
 
+    pub fn rb_hash_new() -> VALUE;
+    pub fn rb_hash_aset(hash: VALUE, key: VALUE, val: VALUE) -> VALUE;
+    pub fn rb_hash_foreach(hash: VALUE, func: extern "C" fn(key: VALUE, val: VALUE, farg: VALUE), farg: VALUE);
+
     pub fn rb_utf8_str_new(ptr: *const c_char, len: c_long) -> VALUE;
 
     pub fn rb_class_new_instance(argc: c_int, argv: *const VALUE, class: VALUE) -> VALUE;
@@ -87,6 +91,39 @@ tests! {
         assert.rb_eq(lazy_eval("'static str'"), unsafe { rb_utf8_str_new(static_str_ptr, 10) });
         assert.rb_eq(lazy_eval("'heap string'"), unsafe { rb_utf8_str_new(heap_string_ptr, 11) });
         assert.rb_eq(lazy_eval("'❤️💛💚💙💜'"), unsafe { rb_utf8_str_new(unicode_ptr, 22) });
+    }
+
+    #[test]
+    fn test_hash_create_and_set(assert: &mut Assertions) {
+        let hash = unsafe { rb_hash_new() };
+
+        unsafe {
+            rb_hash_aset(hash, "foo".to_ruby(), "bar".to_ruby());
+            rb_hash_aset(hash, "baz".to_ruby(), "qux".to_ruby());
+        }
+
+        assert.rb_eq(unsafe { rb_inspect(hash) }, r#"{"foo"=>"bar", "baz"=>"qux"}"#.to_ruby());
+    }
+
+    #[test]
+    fn test_hash_foreach(assert: &mut Assertions) {
+        extern "C" fn __test_hash_foreach__(key: VALUE, val: VALUE, arg: VALUE) {
+            unsafe {
+                rb_ary_push(arg, key);
+                rb_ary_push(arg, val);
+            }
+        }
+
+        let ary = unsafe {
+            let hash = rb_hash_new();
+            let ary = rb_ary_new();
+            rb_hash_aset(hash, "foo".to_ruby(), "bar".to_ruby());
+            rb_hash_aset(hash, "baz".to_ruby(), "qux".to_ruby());
+            rb_hash_foreach(hash, __test_hash_foreach__, ary);
+            ary
+        };
+
+        assert.rb_eq(lazy_eval("['foo', 'bar', 'baz', 'qux']"), ary);
     }
 
     #[test]

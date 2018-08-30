@@ -31,20 +31,19 @@ install:
   - set PATH=C:\Ruby%RUBY_VERSION%\bin;%HOMEDRIVE%%HOMEPATH%\.cargo\bin;%PATH%
   - set RAKEOPT=-rdevkit
   - echo %PATH%
-  - dir C:\msys64\usr\bin
-  - C:\msys64\usr\bin\gcc.exe --help
-  - C:\msys64\usr\bin\ld.exe --help
   - gem install bundler
   - bundle config --local path vendor/bundle
   - bundle install
   # Rust
   - IF NOT EXIST %HOMEDRIVE%%HOMEPATH%\.cargo\bin (curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain %RUST_VERSION% --default-host %RUST_HOST% -y)
   - rustup default %RUST_VERSION%
+  - rustup update
 
 before_test:
   - ruby -v
   - gem -v
   - bundle -v
+  - cargo -V
   - rustc -V
 
 test_script:

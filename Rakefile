@@ -72,9 +72,7 @@ namespace :build do
 
     cp File.expand_path("lib#{libcruby_sys_name}.so", libcruby_sys_path), File.expand_path("lib#{libcruby_sys_name}.dll", libcruby_sys_path)
 
-    link_args = '-Wl,--enable-auto-image-base,--enable-auto-import'
-
-    sh "cargo rustc -- --cfg test -L #{libruby_path.inspect} -l #{libruby_name} -L #{libcruby_sys_path.inspect} -l #{libcruby_sys_name} -C link-args=#{link_args.inspect}"
+    sh "cargo rustc -- --cfg test -L #{libruby_path.inspect} -l #{libruby_name} -L #{libcruby_sys_path.inspect} -l #{libcruby_sys_name}"
     cp "target/debug/libcruby_sys.#{Platform::LIBEXT}", "target/debug/tests.#{Platform::DLEXT}"
   end
 end

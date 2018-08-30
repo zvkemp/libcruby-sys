@@ -36,7 +36,7 @@ install:
   - bundle install
   # Rust
   - IF NOT EXIST %HOMEDRIVE%%HOMEPATH%\.cargo\bin (curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain %RUST_VERSION% --default-host %RUST_HOST% -y)
-  - rustup default %RUST_VERSION%
+  - rustup default %RUST_VERSION%-%RUST_HOST%
   - rustup update
 
 before_test:
